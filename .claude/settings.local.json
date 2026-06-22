@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm --version)",
+      "Bash(kill 43695 44814 47992 47993)",
+      "Bash(pkill -f \"next\")",
+      "Bash(rm -rf /Users/henriquemartins/Desktop/vitrina/.next && echo \"Cache limpo\")",
+      "Bash(pkill -f \"next dev\")"
+    ],
+    "additionalDirectories": [
+      "/Users/henriquemartins/Desktop/vitrina/.next"
+    ]
+  }
+}
