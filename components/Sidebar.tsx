@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import { usePendingCopies } from "@/hooks/usePendingCopies";
 
 const items = [
   { href: "/dashboard", icon: "⬜", label: "Dashboard" },
   { href: "/briefing",  icon: "💬", label: "Briefing" },
-  { href: "/copies",    icon: "✏️",  label: "Copies", badge: "6" },
+  { href: "/copies",    icon: "✏️",  label: "Copies", hasBadge: true },
   { href: "/templates", icon: "🖼️",  label: "Templates" },
   { href: "/agendamento", icon: "📅", label: "Agendamento" },
 ];
@@ -15,8 +17,19 @@ const bottom = [
   { href: "/plano", icon: "💳", label: "Plano & Fatura" },
 ];
 
+function getInitials(name: string | null | undefined): string {
+  if (!name) return "?";
+  return name.split(" ").map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
+}
+
 export default function Sidebar() {
   const path = usePathname();
+  const { data: session } = useSession();
+  const pendingCount = usePendingCopies();
+
+  const userName = session?.user?.name || "Usuário";
+  const planName = session?.user?.planName || "Sem plano";
+
   return (
     <div style={{
       background: "var(--surface)",
@@ -43,7 +56,7 @@ export default function Sidebar() {
           <Link key={it.href} href={it.href} className={`sidebar-item${path === it.href ? " active" : ""}`}>
             <span style={{ fontSize: 15, width: 18, textAlign: "center" }}>{it.icon}</span>
             {it.label}
-            {it.badge && <span className="sidebar-badge">{it.badge}</span>}
+            {it.hasBadge && pendingCount > 0 && <span className="sidebar-badge">{pendingCount}</span>}
           </Link>
         ))}
       </div>
@@ -58,15 +71,23 @@ export default function Sidebar() {
             {it.label}
           </Link>
         ))}
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="sidebar-item"
+          style={{ width: "100%", textAlign: "left", border: "none", background: "none", cursor: "pointer" }}
+        >
+          <span style={{ fontSize: 15, width: 18, textAlign: "center" }}>🚪</span>
+          Sair
+        </button>
       </div>
 
       <div style={{ marginTop: "auto", padding: "16px 20px", borderTop: "1px solid var(--border)", background: "var(--surface)", display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg, var(--purple), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, color: "#fff", flexShrink: 0 }}>
-          MS
+          {getInitials(userName)}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Maria Silva</div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>Plano Pro</div>
+          <div style={{ fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{userName}</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>{planName}</div>
         </div>
       </div>
     </div>

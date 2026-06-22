@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 
 type MediaFile = { file: File; preview: string };
@@ -37,7 +37,30 @@ export default function Briefing() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [answers, setAnswers] = useState<string[]>([]);
   const [media, setMedia] = useState<MediaFile[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [savedMsg, setSavedMsg] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch("/api/briefing")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.id) {
+          setFormData({
+            negocio: data.negocio || "",
+            publico: data.publico || "",
+            tom: data.tom || "",
+            referencias: data.referencias || "",
+            datas: data.datas || "",
+            evitar: data.evitar || "",
+          });
+          if (data.completed) {
+            setStep(questions.length);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -66,25 +89,20 @@ export default function Briefing() {
     "O que evitar",
   ];
 
-  function buildPrompt(ans: string[]) {
-    return `Você é um social media estrategista. Crie posts para redes sociais com base neste briefing:
-
-## Briefing do cliente
-- **Negócio:** ${ans[0] || "—"}
-- **Público-alvo:** ${ans[1] || "—"}
-- **Tom de voz:** ${ans[2] || "—"}
-- **Referências:** ${ans[3] || "—"}
-- **Datas importantes:** ${ans[4] || "—"}
-- **O que evitar:** ${ans[5] || "—"}
-
-## Instruções
-- Gere copies para Instagram e TikTok (carrossel, reels, stories, feed)
-- Use o tom de voz indicado pelo cliente
-- Cada post deve ter: legenda, CTA, hashtags relevantes e sugestão de formato
-- Adapte o conteúdo ao público-alvo descrito
-- Respeite as restrições do campo "O que evitar"
-- Aproveite as datas importantes para posts temáticos
-${media.length > 0 ? `\n## Mídia de referência (${media.length} arquivo${media.length > 1 ? "s" : ""})\n${media.map((m) => `- ${m.file.name} (${m.file.type}, ${(m.file.size / 1024 / 1024).toFixed(1)}MB)`).join("\n")}\nUse essas mídias como referência visual para o estilo e conteúdo dos posts.` : ""}`;
+  async function saveBriefing(data: Record<string, string>, completed: boolean) {
+    setSaving(true);
+    try {
+      await fetch("/api/briefing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, completed }),
+      });
+      setSavedMsg("Briefing salvo com sucesso!");
+      setTimeout(() => setSavedMsg(""), 3000);
+    } catch {
+      setSavedMsg("Erro ao salvar");
+    }
+    setSaving(false);
   }
 
   function send() {
@@ -102,11 +120,10 @@ ${media.length > 0 ? `\n## Mídia de referência (${media.length} arquivo${media
       setTyping(false);
 
       if (step === questions.length - 1) {
-        const prompt = buildPrompt(newAnswers);
-        console.log("=== PROMPT PARA GERAÇÃO DE POSTS ===");
-        console.log(prompt);
-        console.log("=== FIM DO PROMPT ===");
-        console.log("Respostas brutas:", Object.fromEntries(answerLabels.map((l, i) => [l, newAnswers[i] || ""])));
+        const fieldKeys = ["negocio", "publico", "tom", "referencias", "datas", "evitar"];
+        const briefingData: Record<string, string> = {};
+        fieldKeys.forEach((key, i) => { briefingData[key] = newAnswers[i] || ""; });
+        saveBriefing(briefingData, true);
       }
     }, 1200);
   }
@@ -141,6 +158,12 @@ ${media.length > 0 ? `\n## Mídia de referência (${media.length} arquivo${media
           <button className={`nav-btn${tab === "chat" ? " active" : ""}`} onClick={() => setTab("chat")}>💬 Chat guiado</button>
           <button className={`nav-btn${tab === "form" ? " active" : ""}`} onClick={() => setTab("form")}>📋 Formulário</button>
         </div>
+
+        {savedMsg && (
+          <div style={{ marginBottom: 16, padding: "10px 14px", borderRadius: 8, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.3)", fontSize: 13, color: "var(--green)" }}>
+            {savedMsg}
+          </div>
+        )}
 
         {tab === "chat" ? (
           <div className="card" style={{ padding: 0, display: "flex", flexDirection: "column", height: 520 }}>
@@ -262,8 +285,13 @@ ${media.length > 0 ? `\n## Mídia de referência (${media.length} arquivo${media
                 </div>
               )}
             </div>
-            <button className="btn btn-primary" style={{ marginTop: 4 }}>
-              Salvar briefing
+            <button
+              className="btn btn-primary"
+              style={{ marginTop: 4 }}
+              disabled={saving}
+              onClick={() => saveBriefing(formData, true)}
+            >
+              {saving ? "Salvando..." : "Salvar briefing"}
             </button>
           </div>
         )}

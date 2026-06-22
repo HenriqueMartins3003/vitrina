@@ -49,13 +49,21 @@ export default function Navbar() {
         </div>
 
         {/* CTA */}
-        <a
-          href="#planos"
-          className="btn-primary"
-          style={{ padding: "10px 20px", fontSize: "13px", animation: "none" }}
-        >
-          Começar agora
-        </a>
+        <div className="flex items-center gap-4">
+          <a
+            href="/login"
+            className="text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            Entrar
+          </a>
+          <a
+            href="#planos"
+            className="btn-primary"
+            style={{ padding: "10px 20px", fontSize: "13px", animation: "none" }}
+          >
+            Começar agora
+          </a>
+        </div>
       </div>
     </nav>
   );

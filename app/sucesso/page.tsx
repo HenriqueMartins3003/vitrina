@@ -1,6 +1,10 @@
+"use client";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function Sucesso() {
+  const { data: session } = useSession();
+
   return (
     <main
       className="min-h-screen flex items-center justify-center px-5"
@@ -39,20 +43,22 @@ export default function Sucesso() {
         </h1>
 
         <p className="text-gray-400 leading-relaxed mb-8">
-          Bem-vindo à Vitrina. Em instantes você receberá um email com os
-          próximos passos — contrato, briefing e acesso às redes. Qualquer
-          dúvida, estamos no WhatsApp.
+          {session?.user
+            ? `Bem-vindo à Vitrina, ${session.user.name?.split(" ")[0] || ""}! Seu plano já está ativo. Acesse o dashboard para começar.`
+            : "Bem-vindo à Vitrina. Crie sua conta para acessar o dashboard e começar a usar."
+          }
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a
-            href="https://wa.me/55XXXXXXXXXXX"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary"
-          >
-            Falar no WhatsApp
-          </a>
+          {session?.user ? (
+            <Link href="/dashboard" className="btn-primary">
+              Ir para o Dashboard
+            </Link>
+          ) : (
+            <Link href="/cadastro" className="btn-primary">
+              Criar minha conta
+            </Link>
+          )}
           <Link href="/" className="btn-ghost">
             Voltar ao início
           </Link>
@@ -72,9 +78,9 @@ export default function Sucesso() {
             Seus próximos passos
           </p>
           {[
-            "Assinar o contrato digital (chegará por email em instantes)",
+            session?.user ? "Acessar o dashboard" : "Criar sua conta",
             "Preencher o briefing do seu negócio",
-            "Conectar Instagram e TikTok pelo link seguro",
+            "Aguardar as copies para aprovação",
           ].map((step, i) => (
             <div key={i} className="flex items-start gap-3 mb-3 last:mb-0">
               <span
