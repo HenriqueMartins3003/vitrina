@@ -4,10 +4,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, businessName, whatsapp, segment, city } = await req.json();
 
     if (!name || !email || !password) {
-      return NextResponse.json({ error: "Todos os campos sao obrigatorios" }, { status: 400 });
+      return NextResponse.json({ error: "Todos os campos são obrigatórios" }, { status: 400 });
     }
 
     if (password.length < 6) {
@@ -16,13 +16,21 @@ export async function POST(req: NextRequest) {
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-      return NextResponse.json({ error: "Este email ja esta cadastrado" }, { status: 409 });
+      return NextResponse.json({ error: "Este email já está cadastrado" }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({
-      data: { name, email, passwordHash },
+      data: {
+        name,
+        email,
+        passwordHash,
+        businessName: businessName || null,
+        whatsapp: whatsapp || null,
+        segment: segment || null,
+        city: city || null,
+      },
       select: { id: true, name: true, email: true },
     });
 

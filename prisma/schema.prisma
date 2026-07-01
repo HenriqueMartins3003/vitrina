@@ -50,6 +50,11 @@ model User {
   image         String?
   passwordHash  String?
 
+  businessName String?
+  whatsapp     String?
+  segment      String?
+  city         String?
+
   stripeCustomerId     String? @unique
   stripeSubscriptionId String?
   stripePriceId        String?
@@ -79,6 +84,7 @@ model Briefing {
   datas       String?
   evitar      String?
   chatHistory Json?
+  onboardingData Json?
   completed   Boolean @default(false)
 
   createdAt DateTime @default(now())

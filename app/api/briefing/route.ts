@@ -18,28 +18,38 @@ export async function POST(req: NextRequest) {
   if (error) return error;
 
   const body = await req.json();
+  const od = body.onboardingData;
+
+  // Populate legacy text fields from structured onboarding data for AI compatibility
+  const legacyFields = od ? {
+    negocio: [od.businessName, od.products].filter(Boolean).join(" — ").slice(0, 1000) || body.negocio,
+    publico: [...(od.targetAudience || []), od.clientPain].filter(Boolean).join(" · ").slice(0, 1000) || body.publico,
+    tom: od.toneOfVoice || body.tom,
+    referencias: od.brandReferences || body.referencias,
+    evitar: od.contentToAvoid || body.evitar,
+  } : {
+    negocio: body.negocio,
+    publico: body.publico,
+    tom: body.tom,
+    referencias: body.referencias,
+    evitar: body.evitar,
+  };
 
   const briefing = await prisma.briefing.upsert({
     where: { userId: user!.id },
     create: {
       userId: user!.id,
-      negocio: body.negocio,
-      publico: body.publico,
-      tom: body.tom,
-      referencias: body.referencias,
+      ...legacyFields,
       datas: body.datas,
-      evitar: body.evitar,
       chatHistory: body.chatHistory,
+      onboardingData: od ?? undefined,
       completed: body.completed ?? false,
     },
     update: {
-      negocio: body.negocio,
-      publico: body.publico,
-      tom: body.tom,
-      referencias: body.referencias,
+      ...legacyFields,
       datas: body.datas,
-      evitar: body.evitar,
       chatHistory: body.chatHistory,
+      onboardingData: od ?? undefined,
       completed: body.completed,
     },
   });
