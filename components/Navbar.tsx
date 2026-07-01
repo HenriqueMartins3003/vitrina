@@ -1,61 +1,31 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
+  const [stuck, setStuck] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handler);
-    return () => window.removeEventListener("scroll", handler);
+    const onScroll = () => setStuck(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-      style={{
-        background: scrolled ? "rgba(10,10,10,0.9)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "none",
-      }}
-    >
-      <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <a href="#" className="font-display font-700 text-xl tracking-tight">
-          <span style={{ color: "#22c55e" }}>v</span>
-          <span style={{ color: "#f9fafb" }}>itrina</span>
+    <nav className={`lp-nav${stuck ? " stuck" : ""}`}>
+      <div className="lp-nav-inner">
+        <a href="#" className="lp-logo">
+          Vitrina<span className="lp-logo-dot" />
         </a>
-
-        {/* Nav links — desktop */}
-        <div className="hidden md:flex items-center gap-8">
-          <a
-            href="#como-funciona"
-            className="text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            Como funciona
-          </a>
-          <a
-            href="#planos"
-            className="text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            Planos
-          </a>
-          <a
-            href="#faq"
-            className="text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            FAQ
-          </a>
+        <ul className="lp-nav-links">
+          <li><a href="#como-funciona">Como funciona</a></li>
+          <li><a href="#planos">Planos</a></li>
+          <li><a href="#garantia">Garantia</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <a href="/login" style={{ color: "var(--lp-muted)", textDecoration: "none", fontSize: "0.88rem", fontWeight: 500, transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "var(--lp-text)"} onMouseLeave={e => e.currentTarget.style.color = "var(--lp-muted)"}>Entrar</a>
+          <a href="#planos" className="lp-nav-btn">Começar agora →</a>
         </div>
-
-        {/* CTA */}
-        <a
-          href="#planos"
-          className="btn-primary"
-          style={{ padding: "10px 20px", fontSize: "13px", animation: "none" }}
-        >
-          Começar agora
-        </a>
       </div>
     </nav>
   );

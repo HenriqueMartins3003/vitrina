@@ -6,7 +6,15 @@
       "Bash(kill 43695 44814 47992 47993)",
       "Bash(pkill -f \"next\")",
       "Bash(rm -rf /Users/henriquemartins/Desktop/vitrina/.next && echo \"Cache limpo\")",
-      "Bash(pkill -f \"next dev\")"
+      "Bash(pkill -f \"next dev\")",
+      "Bash(git config *)",
+      "Bash(git push *)",
+      "Bash(git fetch *)",
+      "Bash(GIT_CURL_VERBOSE=1 git push -u origin claude/zealous-edison-d0z249)",
+      "Bash(env)",
+      "Bash(git rm *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ],
     "additionalDirectories": [
       "/Users/henriquemartins/Desktop/vitrina/.next"
