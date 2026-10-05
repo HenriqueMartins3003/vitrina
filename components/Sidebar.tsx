@@ -44,10 +44,6 @@ export default function Sidebar() {
       overflowY: "auto",
       flexShrink: 0,
     }}>
-      <div style={{ padding: "24px 20px 8px", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 18, color: "var(--lime)" }}>
-        Vitrina ✦
-      </div>
-
       <div style={{ padding: "16px 0 4px" }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--dim)", padding: "0 20px", marginBottom: 8 }}>
           Principal
